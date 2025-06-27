@@ -125,8 +125,8 @@ public class ForgeHexInitializer {
         bind(Registries.ENTITY_TYPE, HexEntities::registerEntities);
         // Testing out new registration system
         HexAttributes.register();
-        bind(Registries.MOB_EFFECT, HexMobEffects::register);
-        bind(Registries.POTION, HexPotions::registerPotions);
+        HexMobEffects.register();
+        HexPotions.register();
         bind(Registries.PARTICLE_TYPE, HexParticles::registerParticles);
 
         bind(Registries.TRIGGER_TYPE, HexAdvancementTriggers::registerTriggers);
@@ -261,7 +261,7 @@ public class ForgeHexInitializer {
         });
 
         evBus.addListener(RegisterBrewingRecipesEvent.class, ev -> {
-            HexPotions.addRecipes(ev.getBuilder(), ev.getRegistryAccess());
+            HexPotions.addRecipes(ev.getBuilder());
         });
 
         // Caps are cardinal components on farbc
