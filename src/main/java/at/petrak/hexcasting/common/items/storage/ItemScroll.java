@@ -70,6 +70,12 @@ public class ItemScroll extends Item implements IotaHolderItem {
     }
 
     @Override
+    public @Nullable Iota readIota(ItemStack stack) {
+        var pattern = stack.get(HexDataComponents.PATTERN);
+        return pattern != null ? new PatternIota(pattern) : null;
+    }
+
+    @Override
     public boolean writeable(ItemStack stack) {
         return true;
     }
