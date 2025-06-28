@@ -28,12 +28,19 @@ public record MsgAltioraUpdateAck(@Nullable AltioraAbility altiora) implements C
         return TYPE;
     }
 
-    public static void handle(MsgAltioraUpdateAck self) {
-        Minecraft.getInstance().execute(() -> {
-            var player = Minecraft.getInstance().player;
-            if (player != null) {
-                IXplatAbstractions.INSTANCE.setAltiora(player, self.altiora);
-            }
-        });
+    public void handle() {
+        Handler.handle(this);
+    }
+
+    public static final class Handler {
+
+        public static void handle(MsgAltioraUpdateAck self) {
+            Minecraft.getInstance().execute(() -> {
+                var player = Minecraft.getInstance().player;
+                if (player != null) {
+                    IXplatAbstractions.INSTANCE.setAltiora(player, self.altiora);
+                }
+            });
+        }
     }
 }

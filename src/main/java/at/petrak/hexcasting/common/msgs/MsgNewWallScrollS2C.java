@@ -1,23 +1,16 @@
 package at.petrak.hexcasting.common.msgs;
 
 import at.petrak.hexcasting.api.HexAPI;
-import at.petrak.hexcasting.api.utils.HexUtils;
 import at.petrak.hexcasting.common.entities.EntityWallScroll;
-import at.petrak.paucal.api.PaucalCodecs;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
-
-import static at.petrak.hexcasting.api.HexAPI.modLoc;
 
 // https://github.com/VazkiiMods/Botania/blob/1.18.x/Xplat/src/main/java/vazkii/botania/network/clientbound/PacketSpawnDoppleganger.java
 public record MsgNewWallScrollS2C(ClientboundAddEntityPacket inner, BlockPos pos, Direction dir, ItemStack scrollItem,
@@ -39,17 +32,24 @@ public record MsgNewWallScrollS2C(ClientboundAddEntityPacket inner, BlockPos pos
         return TYPE;
     }
 
-    public static void handle(MsgNewWallScrollS2C self) {
-        Minecraft.getInstance().execute(() -> {
-            var player = Minecraft.getInstance().player;
-            if (player != null) {
-                player.connection.handleAddEntity(self.inner);
-                var e = player.level().getEntity(self.inner.getId());
-                if (e instanceof EntityWallScroll scroll) {
-                    scroll.readSpawnData(self.pos, self.dir, self.scrollItem, self.showsStrokeOrder,
-                        self.blockSize);
+    public void handle() {
+        Handler.handle(this);
+    }
+
+    public static final class Handler {
+
+        public static void handle(MsgNewWallScrollS2C self) {
+            Minecraft.getInstance().execute(() -> {
+                var player = Minecraft.getInstance().player;
+                if (player != null) {
+                    player.connection.handleAddEntity(self.inner);
+                    var e = player.level().getEntity(self.inner.getId());
+                    if (e instanceof EntityWallScroll scroll) {
+                        scroll.readSpawnData(self.pos, self.dir, self.scrollItem, self.showsStrokeOrder,
+                                self.blockSize);
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 }
