@@ -1,13 +1,17 @@
 package at.petrak.hexcasting.common.blocks.circles;
 
+import at.petrak.hexcasting.api.HexAPI;
 import at.petrak.hexcasting.api.block.HexBlockEntity;
 import at.petrak.hexcasting.api.casting.math.HexPattern;
 import at.petrak.hexcasting.common.lib.HexBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,6 +23,19 @@ public class BlockEntitySlate extends HexBlockEntity {
 
     public BlockEntitySlate(BlockPos pos, BlockState state) {
         super(HexBlockEntities.SLATE_TILE, pos, state);
+    }
+
+    @Override
+    protected void collectImplicitComponents(DataComponentMap.Builder components) {
+        super.collectImplicitComponents(components);
+        if (this.pattern != null) {
+            var tag = new CompoundTag();
+            tag.putString("id", HexAPI.modLoc("slate").toString());
+            tag.put(TAG_PATTERN, HexPattern.CODEC
+                    .encodeStart(NbtOps.INSTANCE, this.pattern)
+                    .getOrThrow());
+            components.set(DataComponents.BLOCK_ENTITY_DATA, CustomData.of(tag));
+        }
     }
 
     @Override
