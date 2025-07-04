@@ -9,6 +9,7 @@ import at.petrak.hexcasting.api.item.IotaHolderItem;
 import at.petrak.hexcasting.api.utils.NBTHelper;
 import at.petrak.hexcasting.client.gui.PatternTooltipComponent;
 import at.petrak.hexcasting.common.blocks.circles.BlockEntitySlate;
+import at.petrak.hexcasting.common.lib.HexItems;
 import at.petrak.hexcasting.common.lib.hex.HexIotaTypes;
 import at.petrak.hexcasting.common.misc.PatternTooltip;
 import at.petrak.hexcasting.interop.inline.InlinePatternData;
@@ -105,23 +106,25 @@ public class ItemSlate extends BlockItem implements IotaHolderItem {
     public void writeDatum(ItemStack stack, Iota datum) {
         if (this.canWrite(stack, datum)) {
             if (datum == null) {
-                var beData = stack.get(DataComponents.BLOCK_ENTITY_DATA);
-                beData.update(tag -> {
-                    tag.remove(BlockEntitySlate.TAG_PATTERN);
-                });
+                stack.update(DataComponents.BLOCK_ENTITY_DATA, CustomData.of(new CompoundTag()), data ->
+                    data.update(tag -> {
+                        tag.remove("id");
+                        tag.remove(BlockEntitySlate.TAG_PATTERN);
+                    })
+                );
 
-                if(beData.isEmpty())
+                if(stack.get(DataComponents.BLOCK_ENTITY_DATA).isEmpty())
                     stack.remove(DataComponents.BLOCK_ENTITY_DATA);
             } else if (datum instanceof PatternIota pat) {
-                stack.update(DataComponents.BLOCK_ENTITY_DATA, CustomData.of(new CompoundTag()), data -> {
-                    data.update(tag ->
-                            tag.put(BlockEntitySlate.TAG_PATTERN, HexPattern.CODEC
-                                    .encodeStart(NbtOps.INSTANCE, pat.getPattern())
-                                    .getOrThrow()
-                            )
-                    );
-                    return data;
-                });
+                stack.update(DataComponents.BLOCK_ENTITY_DATA, CustomData.of(new CompoundTag()), data ->
+                    data.update(tag -> {
+                        tag.putString("id", HexAPI.modLoc("slate").toString());
+                        tag.put(BlockEntitySlate.TAG_PATTERN, HexPattern.CODEC
+                                .encodeStart(NbtOps.INSTANCE, pat.getPattern())
+                                .getOrThrow()
+                        );
+                    })
+                );
             }
         }
     }
