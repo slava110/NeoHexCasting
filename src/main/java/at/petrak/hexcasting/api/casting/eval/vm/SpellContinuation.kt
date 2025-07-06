@@ -25,14 +25,13 @@ sealed interface SpellContinuation {
         fun toList(continuation: SpellContinuation): List<ContinuationFrame> {
             val accumulator = ArrayList<ContinuationFrame>()
             var c = continuation
-            while (c != Done) {
-                accumulator.add((c as NotDone).frame)
+            while (c is NotDone) {
+                accumulator.add(c.frame)
                 c = c.next
             }
             return accumulator
         }
 
-        // TODO port: maybe unit should be first
         @JvmStatic
         val CODEC = ContinuationFrame.Type.TYPED_CODEC.listOf().xmap<SpellContinuation>(
             SpellContinuation::fromList,

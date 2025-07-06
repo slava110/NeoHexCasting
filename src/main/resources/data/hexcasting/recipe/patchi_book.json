@@ -12,7 +12,6 @@
     "components": {
       "patchouli:book": "hexcasting:thehexbook"
     },
-    "count": 1,
     "id": "patchouli:guide_book"
   }
 }
