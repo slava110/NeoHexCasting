@@ -9,7 +9,7 @@ import at.petrak.hexcasting.api.item.IotaHolderItem;
 import at.petrak.hexcasting.api.utils.NBTHelper;
 import at.petrak.hexcasting.client.gui.PatternTooltipComponent;
 import at.petrak.hexcasting.common.blocks.circles.BlockEntitySlate;
-import at.petrak.hexcasting.common.lib.HexItems;
+import at.petrak.hexcasting.common.lib.HexDataComponents;
 import at.petrak.hexcasting.common.lib.hex.HexIotaTypes;
 import at.petrak.hexcasting.common.misc.PatternTooltip;
 import at.petrak.hexcasting.interop.inline.InlinePatternData;
@@ -50,13 +50,7 @@ public class ItemSlate extends BlockItem implements IotaHolderItem {
     }
 
     public static Optional<HexPattern> getPattern(ItemStack stack){
-        var bet = stack.get(DataComponents.BLOCK_ENTITY_DATA);
-
-        if (bet != null && bet.contains(BlockEntitySlate.TAG_PATTERN)) {
-            var pattern = bet.read(HexPattern.CODEC.fieldOf(BlockEntitySlate.TAG_PATTERN)).result().orElse(null);
-            return Optional.ofNullable(pattern);
-        }
-        return Optional.empty();
+        return Optional.ofNullable(stack.get(HexDataComponents.PATTERN));
     }
 
     public static boolean hasPattern(ItemStack stack) {
@@ -66,7 +60,7 @@ public class ItemSlate extends BlockItem implements IotaHolderItem {
     @SoftImplement("IForgeItem")
     public boolean onEntityItemUpdate(ItemStack stack, ItemEntity entity) {
         if (!hasPattern(stack)) {
-            stack.remove(DataComponents.BLOCK_ENTITY_DATA);
+            stack.remove(HexDataComponents.PATTERN);
         }
         return false;
     }
@@ -74,22 +68,13 @@ public class ItemSlate extends BlockItem implements IotaHolderItem {
     @Override
     public void inventoryTick(ItemStack pStack, Level pLevel, Entity pEntity, int pSlotId, boolean pIsSelected) {
         if (!hasPattern(pStack)) {
-            pStack.remove(DataComponents.BLOCK_ENTITY_DATA);
+            pStack.remove(HexDataComponents.PATTERN);
         }
     }
 
     @Override
     public @Nullable Iota readIota(ItemStack stack) {
-        var bet = stack.get(DataComponents.BLOCK_ENTITY_DATA);;
-
-        if (bet == null || !bet.contains(BlockEntitySlate.TAG_PATTERN)) {
-            return null;
-        }
-
-        return bet.read(HexPattern.CODEC.fieldOf(BlockEntitySlate.TAG_PATTERN))
-                .result()
-                .map(PatternIota::new)
-                .orElse(null);
+        return getPattern(stack).map(PatternIota::new).orElse(null);
     }
 
     @Override
@@ -106,25 +91,9 @@ public class ItemSlate extends BlockItem implements IotaHolderItem {
     public void writeDatum(ItemStack stack, Iota datum) {
         if (this.canWrite(stack, datum)) {
             if (datum == null) {
-                stack.update(DataComponents.BLOCK_ENTITY_DATA, CustomData.of(new CompoundTag()), data ->
-                    data.update(tag -> {
-                        tag.remove("id");
-                        tag.remove(BlockEntitySlate.TAG_PATTERN);
-                    })
-                );
-
-                if(stack.get(DataComponents.BLOCK_ENTITY_DATA).isEmpty())
-                    stack.remove(DataComponents.BLOCK_ENTITY_DATA);
+                stack.remove(HexDataComponents.PATTERN);
             } else if (datum instanceof PatternIota pat) {
-                stack.update(DataComponents.BLOCK_ENTITY_DATA, CustomData.of(new CompoundTag()), data ->
-                    data.update(tag -> {
-                        tag.putString("id", HexAPI.modLoc("slate").toString());
-                        tag.put(BlockEntitySlate.TAG_PATTERN, HexPattern.CODEC
-                                .encodeStart(NbtOps.INSTANCE, pat.getPattern())
-                                .getOrThrow()
-                        );
-                    })
-                );
+                stack.set(HexDataComponents.PATTERN, pat.getPattern());
             }
         }
     }

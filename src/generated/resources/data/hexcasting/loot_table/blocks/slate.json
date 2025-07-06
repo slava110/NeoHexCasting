@@ -9,7 +9,7 @@
             {
               "function": "minecraft:copy_components",
               "include": [
-                "minecraft:block_entity_data"
+                "hexcasting:pattern"
               ],
               "source": "block_entity"
             }

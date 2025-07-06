@@ -81,7 +81,7 @@ public class HexLootTables extends PaucalLootTableSubProvider {
             .setRolls(ConstantValue.exactly(1))
             .add(LootItem.lootTableItem(HexBlocks.SLATE)
                 .apply(CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
-                        .include(DataComponents.BLOCK_ENTITY_DATA)
+                        .include(HexDataComponents.PATTERN)
                 ));
         blockTables.put(HexBlocks.SLATE, LootTable.lootTable().withPool(slatePool));
 
