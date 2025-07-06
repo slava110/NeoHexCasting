@@ -102,7 +102,7 @@ public class RegisterClientStuff {
         registerScrollOverrides(HexItems.SCROLL_LARGE);
 
         x.registerItemProperty(HexItems.SLATE, ItemSlate.WRITTEN_PRED,
-            (stack, level, holder, holderID) -> ItemSlate.hasPattern(stack) ? 1f : 0f);
+            (stack, level, holder, holderID) -> stack.has(HexDataComponents.PATTERN) ? 1f : 0f);
 
         registerWandOverrides(HexItems.STAFF_OAK);
         registerWandOverrides(HexItems.STAFF_BIRCH);

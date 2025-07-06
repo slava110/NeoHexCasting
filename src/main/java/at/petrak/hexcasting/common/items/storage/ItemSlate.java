@@ -42,34 +42,15 @@ public class ItemSlate extends BlockItem implements IotaHolderItem {
 
     @Override
     public Component getName(ItemStack pStack) {
-        var key = "block." + HexAPI.MOD_ID + ".slate." + (hasPattern(pStack) ? "written" : "blank");
+        var key = "block." + HexAPI.MOD_ID + ".slate." + (pStack.has(HexDataComponents.PATTERN) ? "written" : "blank");
         Component patternText = getPattern(pStack)
             .map(pat -> Component.literal(": ").append(new InlinePatternData(pat).asText(false)))
             .orElse(Component.literal(""));
         return Component.translatable(key).append(patternText);
     }
 
-    public static Optional<HexPattern> getPattern(ItemStack stack){
+    private static Optional<HexPattern> getPattern(ItemStack stack) {
         return Optional.ofNullable(stack.get(HexDataComponents.PATTERN));
-    }
-
-    public static boolean hasPattern(ItemStack stack) {
-        return getPattern(stack).isPresent();
-    }
-
-    @SoftImplement("IForgeItem")
-    public boolean onEntityItemUpdate(ItemStack stack, ItemEntity entity) {
-        if (!hasPattern(stack)) {
-            stack.remove(HexDataComponents.PATTERN);
-        }
-        return false;
-    }
-
-    @Override
-    public void inventoryTick(ItemStack pStack, Level pLevel, Entity pEntity, int pSlotId, boolean pIsSelected) {
-        if (!hasPattern(pStack)) {
-            pStack.remove(HexDataComponents.PATTERN);
-        }
     }
 
     @Override
